@@ -29,26 +29,27 @@ public class MyFlappyBird extends ApplicationAdapter implements InputProcessor {
 	private ImageButton button;
 	Preferences HighscoreTracker;
 	Sound point,die;
-	Texture start,background,gameOver,topTube,bottomTube,playAgainTexture;
+	Texture start, background, gameOver, topTube, bottomTube, playAgainTexture;
 	SpriteBatch batch;
 	ShapeRenderer shapeRenderer;
 	Texture[] birds;
-	int flatState=0;
-	int pause=0;
-	int score=0;
-	int scoringTube=0;
-	BitmapFont font,font2;
-	float birdY=0;
-	float velocity=0;
-	float gravity=2.1f;
+	int flatState = 0;
+	int pause = 0;
+	int score = 0;
+	int scoringTube = 0;
+	BitmapFont font, font2;
+	float birdY = 0;
+	float BIRDX;
+	float velocity = 0;
+	float gravity = 2.1f;
 	Circle birdCircle;
-	Rectangle[] topTubeRectangle,bottomTubeRectangle;
-	int gameState=0;   // 1=started  2=game over  0=waiting for a tap
-	float gap=500;
-	float maxTubeOffset,distanceBetweenTubes;
+	Rectangle[] topTubeRectangle, bottomTubeRectangle;
+	int gameState = 0;   // 1=started  2=game over  0=waiting for a tap
+	float gap = 500;
+	float maxTubeOffset, distanceBetweenTubes;
 	Random rand;
-	float tubeVelocity=8;
-	int flag=0; //when the user games over it turns to 1
+	float tubeVelocity = 8;
+	int flag = 0; //when the user games over it turns to 1
 	int numberOfTubes=4;
 	float[] tubeX=new float[numberOfTubes];
 	float [] tubeOffset=new float[numberOfTubes];
@@ -77,15 +78,16 @@ public class MyFlappyBird extends ApplicationAdapter implements InputProcessor {
 	@Override
 	public void create () {
 		setAssets();
-		stage=new Stage();
-		 playAgainTexture = new Texture(Gdx.files.internal("playagain.png"));
+		BIRDX = Gdx.graphics.getWidth() / 2 - birds[flatState].getWidth() / 2;
+		stage = new Stage();
+		playAgainTexture = new Texture(Gdx.files.internal("playagain.png"));
 
 
 		batch = new SpriteBatch();
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("font.TTF"));
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 		parameter.size = 80;
-		 font = generator.generateFont(parameter); // font size 12 pixels
+		font = generator.generateFont(parameter); // font size 12 pixels
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter2 = new FreeTypeFontGenerator.FreeTypeFontParameter();
 		parameter2.size = 50;
 parameter2.color=Color.ORANGE;
@@ -233,8 +235,8 @@ parameter2.color=Color.ORANGE;
 				flatState = 0;
 			}}
 
-		if(gameState!=0)
-			batch.draw(birds[flatState], Gdx.graphics.getWidth() / 2 - birds[flatState].getWidth() / 2, birdY);
+		if (gameState != 0)
+			batch.draw(birds[flatState], BIRDX, birdY);
 		font.draw(batch,String.valueOf(score),100,260);
 		font2.draw(batch,"Your highscore :"+highscore,390,200);
 		birdCircle.set(Gdx.graphics.getWidth()/2,birdY+birds[flatState].getHeight()/2,birds[flatState].getWidth()/2-5);
