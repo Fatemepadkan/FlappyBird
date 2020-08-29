@@ -2,6 +2,7 @@ package com.niloufarpadkan.flappybird;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
@@ -23,12 +24,12 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 import java.util.Random;
 
-public class MyFlappyBird extends ApplicationAdapter {
+public class MyFlappyBird extends ApplicationAdapter implements InputProcessor {
 	private Stage stage;
 	private ImageButton button;
 	Preferences HighscoreTracker;
 	Sound point,die;
-	Texture start,background,gameOver,topTube,bottomTube;
+	Texture start,background,gameOver,topTube,bottomTube,playAgainTexture;
 	SpriteBatch batch;
 	ShapeRenderer shapeRenderer;
 	Texture[] birds;
@@ -46,7 +47,7 @@ public class MyFlappyBird extends ApplicationAdapter {
 	float gap=500;
 	float maxTubeOffset,distanceBetweenTubes;
 	Random rand;
-	float tubeVelocity=6;
+	float tubeVelocity=8;
 	int flag=0; //when the user games over it turns to 1
 	int numberOfTubes=4;
 	float[] tubeX=new float[numberOfTubes];
@@ -72,17 +73,13 @@ public class MyFlappyBird extends ApplicationAdapter {
 			bottomTube= new Texture("redpipedown.png");
 		}
 	}
+
 	@Override
 	public void create () {
 		setAssets();
 		stage=new Stage();
-		Texture playAgainTexture = new Texture(Gdx.files.internal("playagain.png"));
-		button = new ImageButton(
-				new TextureRegionDrawable(new TextureRegion(playAgainTexture))
-		);
-		button.setPosition(Gdx.graphics.getWidth()/2-playAgainTexture.getWidth()/2,Gdx.graphics.getHeight()/2-playAgainTexture.getHeight()/2-150);  //hikeButton is an ImageButton
-		Gdx.input.setInputProcessor(stage);
-		stage.addActor(button);
+		 playAgainTexture = new Texture(Gdx.files.internal("playagain.png"));
+
 
 		batch = new SpriteBatch();
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("font.TTF"));
@@ -125,7 +122,6 @@ parameter2.color=Color.ORANGE;
 	}
 	@Override
 	public void render () {
-
 		batch.begin();
 		batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		if(gameState==1) {
@@ -178,10 +174,16 @@ parameter2.color=Color.ORANGE;
 				gameState=1;
 			}
 		}else if(gameState==2){
+
 			if(flag==0)
 				die.play();
 			flag=1;
-
+			button = new ImageButton(
+					new TextureRegionDrawable(new TextureRegion(playAgainTexture))
+			);
+			button.setPosition(Gdx.graphics.getWidth()/2-playAgainTexture.getWidth()/2,Gdx.graphics.getHeight()/2-playAgainTexture.getHeight()/2-150);  //hikeButton is an ImageButton
+			Gdx.input.setInputProcessor(stage);
+			stage.addActor(button);
 			if (score > highscore) {
 				HighscoreTracker.putInteger("highscore", score);
 				HighscoreTracker.flush();
@@ -192,28 +194,28 @@ parameter2.color=Color.ORANGE;
 			batch.draw(gameOver,Gdx.graphics.getWidth()/2-gameOver.getWidth()/2,Gdx.graphics.getHeight()/2-gameOver.getHeight()/2);
 			stage.act(); //Perform ui logic
 			stage.draw(); //Draw the uij
-
-			if(Gdx.input.justTouched()){
-				gameState=1;
-				startGame();
-				score=0;
-				scoringTube=0;
-				velocity=0;
-				flag=0;
-				setAssets();
-			}
-//			button.addListener(new ClickListener() {
-//				public void clicked(InputEvent event, float x, float y){
 //
-//					gameState=1;
-//					startGame();
-//					score=0;
-//					scoringTube=0;
-//					velocity=0;
-//					flag=0;
-//					setAssets();
-//				}
-//			});
+//			if(Gdx.input.justTouched()){
+//				gameState=1;
+//				startGame();
+//				score=0;
+//				scoringTube=0;
+//				velocity=0;
+//				flag=0;
+//				setAssets();
+//			}
+			button.addListener(new ClickListener() {
+				public void clicked(InputEvent event, float x, float y){
+
+					gameState=1;
+					startGame();
+					score=0;
+					scoringTube=0;
+					velocity=0;
+					flag=0;
+					setAssets();
+				}
+			});
 
 		}
 		if (flatState == 0) {
@@ -258,5 +260,44 @@ parameter2.color=Color.ORANGE;
 	}
 
 
+	@Override
+	public boolean keyDown(int keycode) {
 
+		return false;
+	}
+
+	@Override
+	public boolean keyUp(int keycode) {
+		return false;
+	}
+
+	@Override
+	public boolean keyTyped(char character) {
+		return false;
+	}
+
+	@Override
+	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+		return false;
+	}
+
+	@Override
+	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+		return false;
+	}
+
+	@Override
+	public boolean touchDragged(int screenX, int screenY, int pointer) {
+		return false;
+	}
+
+	@Override
+	public boolean mouseMoved(int screenX, int screenY) {
+		return false;
+	}
+
+	@Override
+	public boolean scrolled(int amount) {
+		return false;
+	}
 }
