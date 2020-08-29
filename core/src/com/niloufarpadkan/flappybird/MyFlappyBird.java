@@ -18,14 +18,11 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 
-import java.lang.reflect.Array;
-import java.util.EventListener;
 import java.util.Random;
 
 public class MyFlappyBird extends ApplicationAdapter implements InputProcessor {
@@ -46,6 +43,8 @@ public class MyFlappyBird extends ApplicationAdapter implements InputProcessor {
 	int scoringTube=0;
 	BitmapFont font,font2;
 	float birdY=0;
+	float birdX;
+
 	float velocity=0;
 	float gravity=2.1f;
 	Circle birdCircle;
@@ -61,7 +60,9 @@ public class MyFlappyBird extends ApplicationAdapter implements InputProcessor {
 	float [] tubeOffset=new float[numberOfTubes];
 	int highscore;
 	public void setAssets(){ //setting assets randomly
-
+		soundOn=new Texture("soundon.png");
+		soundOff=new Texture("soundoff.png");
+		playAgainTexture = new Texture(Gdx.files.internal("playagain.png"));
 		birds= new Texture[2];
 		rand=new Random();
 		int randomAsset=rand.nextInt(10);
@@ -86,14 +87,15 @@ public class MyFlappyBird extends ApplicationAdapter implements InputProcessor {
 	public void create () {
 		setAssets();
 		buttonStage =new Stage();
-		soundOn=new Texture("soundon.png");
-		soundOff=new Texture("soundoff.png");
 		soundStage =new Stage();
-		 playAgainTexture = new Texture(Gdx.files.internal("playagain.png"));
+
+
+		birdX = Gdx.graphics.getWidth() / 2 - birds[flatState].getWidth() / 2;
+
 		soundButton = new ImageButton(
 				new TextureRegionDrawable(new TextureRegion(soundOn))
 		);
-		soundButton.setPosition(Gdx.graphics.getWidth()/2-soundStage.getWidth()/2,Gdx.graphics.getHeight()/2-soundStage.getHeight()/2-150);
+		soundButton.setPosition(Gdx.graphics.getWidth()/2-soundOn.getWidth()/2,Gdx.graphics.getHeight()/2-soundOn.getHeight()/2-150);
 		Gdx.input.setInputProcessor(soundStage);
 		soundStage.addActor(soundButton);
 
