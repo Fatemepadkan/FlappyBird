@@ -15,46 +15,53 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 
+import java.lang.reflect.Array;
+import java.util.EventListener;
 import java.util.Random;
 
 public class MyFlappyBird extends ApplicationAdapter implements InputProcessor {
-	private Stage stage;
-	private ImageButton button;
+	private Stage buttonStage;
+	private Stage soundStage;
+
+	private ImageButton playAgainButton,soundButton;
 	Preferences HighscoreTracker;
 	Sound point,die;
-	Texture start, background, gameOver, topTube, bottomTube, playAgainTexture;
+	Texture start,background,gameOver,topTube,bottomTube,playAgainTexture,soundOn,soundOff;
 	SpriteBatch batch;
 	ShapeRenderer shapeRenderer;
 	Texture[] birds;
-	int flatState = 0;
-	int pause = 0;
-	int score = 0;
-	int scoringTube = 0;
-	BitmapFont font, font2;
-	float birdY = 0;
-	float BIRDX;
-	float velocity = 0;
-	float gravity = 2.1f;
+	int flatState=0;
+	int pause=0;
+	int score=0;
+	int soundEnabled=1;
+	int scoringTube=0;
+	BitmapFont font,font2;
+	float birdY=0;
+	float velocity=0;
+	float gravity=2.1f;
 	Circle birdCircle;
-	Rectangle[] topTubeRectangle, bottomTubeRectangle;
-	int gameState = 0;   // 1=started  2=game over  0=waiting for a tap
-	float gap = 500;
-	float maxTubeOffset, distanceBetweenTubes;
+	Rectangle[] topTubeRectangle,bottomTubeRectangle;
+	int gameState=0;   // 1=started  2=game over  0=waiting for a tap
+	float gap=500;
+	float maxTubeOffset,distanceBetweenTubes;
 	Random rand;
-	float tubeVelocity = 8;
-	int flag = 0; //when the user games over it turns to 1
+	float tubeVelocity=8;
+	int flag=0; //when the user games over it turns to 1
 	int numberOfTubes=4;
 	float[] tubeX=new float[numberOfTubes];
 	float [] tubeOffset=new float[numberOfTubes];
 	int highscore;
 	public void setAssets(){ //setting assets randomly
+
 		birds= new Texture[2];
 		rand=new Random();
 		int randomAsset=rand.nextInt(10);
@@ -78,16 +85,23 @@ public class MyFlappyBird extends ApplicationAdapter implements InputProcessor {
 	@Override
 	public void create () {
 		setAssets();
-		BIRDX = Gdx.graphics.getWidth() / 2 - birds[flatState].getWidth() / 2;
-		stage = new Stage();
-		playAgainTexture = new Texture(Gdx.files.internal("playagain.png"));
-
+		buttonStage =new Stage();
+		soundOn=new Texture("soundon.png");
+		soundOff=new Texture("soundoff.png");
+		soundStage =new Stage();
+		 playAgainTexture = new Texture(Gdx.files.internal("playagain.png"));
+		soundButton = new ImageButton(
+				new TextureRegionDrawable(new TextureRegion(soundOn))
+		);
+		soundButton.setPosition(Gdx.graphics.getWidth()/2-soundStage.getWidth()/2,Gdx.graphics.getHeight()/2-soundStage.getHeight()/2-150);
+		Gdx.input.setInputProcessor(soundStage);
+		soundStage.addActor(soundButton);
 
 		batch = new SpriteBatch();
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("font.TTF"));
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 		parameter.size = 80;
-		font = generator.generateFont(parameter); // font size 12 pixels
+		 font = generator.generateFont(parameter); // font size 12 pixels
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter2 = new FreeTypeFontGenerator.FreeTypeFontParameter();
 		parameter2.size = 50;
 parameter2.color=Color.ORANGE;
@@ -124,10 +138,15 @@ parameter2.color=Color.ORANGE;
 	}
 	@Override
 	public void render () {
+
 		batch.begin();
 		batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		if(gameState==1) {
+			for(Actor actor : buttonStage.getActors()) {
+				//actor.remove();
+				actor.remove();
 
+			}
 			if(tubeX[scoringTube]<Gdx.graphics.getWidth()/2){
 				score++;
 				point.play();
@@ -170,56 +189,52 @@ parameter2.color=Color.ORANGE;
 				gameState=2;
 			}
 		}else if (gameState==0){
+			for(Actor actor : buttonStage.getActors()) {
+				//actor.remove();
+				actor.remove();
+			}
 					batch.draw(start,Gdx.graphics.getWidth()/2-start.getWidth()/2,Gdx.graphics.getHeight()/2-start.getHeight()/2);
 
 			if(Gdx.input.justTouched()){
 				gameState=1;
 			}
-		}else if(gameState==2){
+		}else if(gameState==2) {
 
-			if(flag==0)
+			if (flag == 0)
 				die.play();
-			flag=1;
-			button = new ImageButton(
+			flag = 1;
+			playAgainButton = new ImageButton(
 					new TextureRegionDrawable(new TextureRegion(playAgainTexture))
 			);
-			button.setPosition(Gdx.graphics.getWidth()/2-playAgainTexture.getWidth()/2,Gdx.graphics.getHeight()/2-playAgainTexture.getHeight()/2-150);  //hikeButton is an ImageButton
-			Gdx.input.setInputProcessor(stage);
-			stage.addActor(button);
+			playAgainButton.setPosition(Gdx.graphics.getWidth() / 2 - playAgainTexture.getWidth() / 2, Gdx.graphics.getHeight() / 2 - playAgainTexture.getHeight() / 2 - 150);  //hikeButton is an ImageButton
+			Gdx.input.setInputProcessor(buttonStage);
+			buttonStage.addActor(playAgainButton);
 			if (score > highscore) {
 				HighscoreTracker.putInteger("highscore", score);
 				HighscoreTracker.flush();
-				highscore= HighscoreTracker.getInteger("highscore");
+				highscore = HighscoreTracker.getInteger("highscore");
 			}
-			font2.draw(batch,"Your current score:"+score,390,300);
+			font2.draw(batch, "Your current score:" + score, 390, 300);
 
-			batch.draw(gameOver,Gdx.graphics.getWidth()/2-gameOver.getWidth()/2,Gdx.graphics.getHeight()/2-gameOver.getHeight()/2);
-			stage.act(); //Perform ui logic
-			stage.draw(); //Draw the uij
-//
-//			if(Gdx.input.justTouched()){
-//				gameState=1;
-//				startGame();
-//				score=0;
-//				scoringTube=0;
-//				velocity=0;
-//				flag=0;
-//				setAssets();
-//			}
-			button.addListener(new ClickListener() {
-				public void clicked(InputEvent event, float x, float y){
+			batch.draw(gameOver, Gdx.graphics.getWidth() / 2 - gameOver.getWidth() / 2, Gdx.graphics.getHeight() / 2 - gameOver.getHeight() / 2);
+			buttonStage.act(); //Perform ui logic
+			buttonStage.draw(); //Draw the uij
 
-					gameState=1;
+
+			playAgainButton.addListener(new ClickListener() {
+				public void clicked(InputEvent event, float x, float y) {
+
+					gameState = 1;
 					startGame();
-					score=0;
-					scoringTube=0;
-					velocity=0;
-					flag=0;
+					score = 0;
+					scoringTube = 0;
+					velocity = 0;
+					flag = 0;
 					setAssets();
 				}
 			});
-
 		}
+
 		if (flatState == 0) {
 			if(pause<8){
 				pause++;
@@ -235,8 +250,8 @@ parameter2.color=Color.ORANGE;
 				flatState = 0;
 			}}
 
-		if (gameState != 0)
-			batch.draw(birds[flatState], BIRDX, birdY);
+		if(gameState!=0)
+			batch.draw(birds[flatState], Gdx.graphics.getWidth() / 2 - birds[flatState].getWidth() / 2, birdY);
 		font.draw(batch,String.valueOf(score),100,260);
 		font2.draw(batch,"Your highscore :"+highscore,390,200);
 		birdCircle.set(Gdx.graphics.getWidth()/2,birdY+birds[flatState].getHeight()/2,birds[flatState].getWidth()/2-5);
@@ -257,7 +272,8 @@ parameter2.color=Color.ORANGE;
 			}
 		}
 //		shapeRenderer.end();
-
+		soundStage.act(); //Perform ui logic
+		soundStage.draw(); //Draw the uij
 		batch.end();
 	}
 
