@@ -73,7 +73,7 @@ public class MyFlappyBird extends ApplicationAdapter implements InputProcessor {
         die = Gdx.audio.newSound(Gdx.files.internal("die.mp3"));
         birds = new Texture[2];
         rand = new Random();
-        int randomAsset = rand.nextInt(10);
+        int randomAsset = rand.nextInt(1);
         if (randomAsset % 2 == 0) {
             background = new Texture("bg1.png");
             birds[0] = new Texture("bird.png");
