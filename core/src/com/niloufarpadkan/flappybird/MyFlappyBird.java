@@ -19,6 +19,7 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -31,29 +32,28 @@ import java.util.Random;
 public class MyFlappyBird extends ApplicationAdapter implements InputProcessor {
 	private Stage buttonStage;
 	private Stage soundStage;
-	public static  float vol = 1.0f;
-	private ImageButton playAgainButton,soundButton;
+	public static float vol = 1.0f;
+	private ImageButton playAgainButton, soundButton, btn;
 	Preferences HighscoreTracker;
-	Sound point,die;
-	Texture start,background,gameOver,topTube,bottomTube,playAgainTexture,soundOn,soundOff;
+	Sound point, die;
+	Texture start, background, gameOver, topTube, bottomTube, playAgainTexture, soundOn, soundOff;
 	SpriteBatch batch;
 	ShapeRenderer shapeRenderer;
 	Texture[] birds;
 	private Skin skin;
-	int flatState=0;
-	int pause=0;
-	int score=0;
-	int scoringTube=0;
-	BitmapFont font,font2;
-	float birdY=0;
+	int flatState = 0;
+	int pause = 0;
+	int score = 0;
+	int scoringTube = 0;
+	BitmapFont font, font2;
+	float birdY = 0;
 	float birdX;
-
-	float velocity=0;
-	float gravity=2.1f;
+	float velocity = 0;
+	float gravity = 2.1f;
 	Circle birdCircle;
-	Rectangle[] topTubeRectangle,bottomTubeRectangle;
-	int gameState=0;   // 1=started  2=game over  0=waiting for a tap
-	float gap=450;
+	Rectangle[] topTubeRectangle, bottomTubeRectangle;
+	int gameState = 0;   // 1=started  2=game over  0=waiting for a tap
+	float gap = 450;
 	float maxTubeOffset,distanceBetweenTubes;
 	Random rand;
 	float tubeVelocity=8;
@@ -73,29 +73,41 @@ public class MyFlappyBird extends ApplicationAdapter implements InputProcessor {
 		birds= new Texture[2];
 		rand=new Random();
 		int randomAsset=rand.nextInt(10);
-		if(randomAsset%2==0){
-			background= new Texture("bg1.png");
-			birds[0]=new Texture("bird.png");
-			birds[1]=new Texture("bird2.png");
-			topTube= new Texture("toptube.png");
-			bottomTube= new Texture("bottomtube.png");
+		if (randomAsset % 2 == 0) {
+			background = new Texture("bg1.png");
+			birds[0] = new Texture("bird.png");
+			birds[1] = new Texture("bird2.png");
+			topTube = new Texture("toptube.png");
+			bottomTube = new Texture("bottomtube.png");
+		} else {
+			background = new Texture("bg.png");
+			birds[0] = new Texture("bird3.png");
+			birds[1] = new Texture("bird4.png");
+			topTube = new Texture("redpipeup.png");
+			bottomTube = new Texture("redpipedown.png");
 		}
+		if (vol > 0)
+			soundButton = new ImageButton(
+					new TextureRegionDrawable(new TextureRegion(soundOn))
+			);
+		else
+			soundButton = new ImageButton(
+					new TextureRegionDrawable(new TextureRegion(soundOff))
+			);
 
-		else{
-			background= new Texture("bg.png");
-			birds[0]=new Texture("bird3.png");
-			birds[1]=new Texture("bird4.png");
-			topTube= new Texture("redpipeup.png");
-			bottomTube= new Texture("redpipedown.png");
-		}
+		soundButton.getStyle().imageChecked = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("soundoff.png"))));
+		soundButton.getStyle().imageUp = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("soundon.png"))));
+		soundButton.setPosition(Gdx.graphics.getWidth() - soundOn.getWidth() / 2 - 150, Gdx.graphics.getHeight() - soundOn.getHeight() / 2 - 150);
+
+
 	}
 
 	@Override
 	public void create () {
-		System.out.println(Gdx.graphics.getHeight()+"height");
+
 		setAssets();
-		buttonStage =new Stage();
-		soundStage =new Stage();
+		buttonStage = new Stage();
+		soundStage = new Stage();
 		birdX = Gdx.graphics.getWidth() / 2 - birds[flatState].getWidth() / 2;
 		Gdx.input.setInputProcessor(this);
 		Gdx.input.setCatchBackKey(true);
@@ -103,21 +115,21 @@ public class MyFlappyBird extends ApplicationAdapter implements InputProcessor {
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("font.TTF"));
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 		parameter.size = 80;
-		 font = generator.generateFont(parameter);
+		font = generator.generateFont(parameter);
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter2 = new FreeTypeFontGenerator.FreeTypeFontParameter();
 		parameter2.size = 50;
-parameter2.color=Color.ORANGE;
+		parameter2.color = Color.ORANGE;
 		font2 = generator.generateFont(parameter2);
 		generator.dispose(); // don't forget to dispose to avoid memory leaks!
 		HighscoreTracker = Gdx.app.getPreferences("game preferences");
-		highscore= HighscoreTracker.getInteger("highscore");
-		shapeRenderer= new ShapeRenderer();
-		birdCircle=new Circle();
-		maxTubeOffset =Gdx.graphics.getHeight()/2-gap/2-100;
-		rand=new Random();
-		distanceBetweenTubes=Gdx.graphics.getWidth()/2;
-		topTubeRectangle=new Rectangle[numberOfTubes];
-		bottomTubeRectangle=new Rectangle[numberOfTubes];
+		highscore = HighscoreTracker.getInteger("highscore");
+		shapeRenderer = new ShapeRenderer();
+		birdCircle = new Circle();
+		maxTubeOffset = Gdx.graphics.getHeight() / 2 - gap / 2 - 100;
+		rand = new Random();
+		distanceBetweenTubes = Gdx.graphics.getWidth() / 2;
+		topTubeRectangle = new Rectangle[numberOfTubes];
+		bottomTubeRectangle = new Rectangle[numberOfTubes];
 
 		startGame();
 
@@ -141,32 +153,19 @@ parameter2.color=Color.ORANGE;
 	@Override
 	public void render () {
 
-
-		if(vol>0)
-			soundButton = new ImageButton(
-					new TextureRegionDrawable(new TextureRegion(soundOn))
-			);
-		else
-			soundButton = new ImageButton(
-					new TextureRegionDrawable(new TextureRegion(soundOff))
-			);
-		soundButton.setPosition(Gdx.graphics.getWidth()-soundOn.getWidth()/2-150,Gdx.graphics.getHeight()-soundOn.getHeight()/2-150);
-		soundStage.addActor(soundButton);
-
 		batch.begin();
 		batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		if(gameState==1) {
-		removeActor(buttonStage);
-		removeActor(soundStage);
-			if(tubeX[scoringTube]<Gdx.graphics.getWidth()/2){
+			removeActor(buttonStage);
+			removeActor(soundStage);
+			if (tubeX[scoringTube] < Gdx.graphics.getWidth() / 2) {
 				score++;
 				point.play(vol);
 
-				if(scoringTube<numberOfTubes-1)
-				{
+				if (scoringTube < numberOfTubes - 1) {
 					scoringTube++;
-				}else{
-					scoringTube=0;
+				} else {
+					scoringTube = 0;
 				}
 			}
 			if(Gdx.input.justTouched()){
@@ -212,10 +211,10 @@ parameter2.color=Color.ORANGE;
 			}
 		}else if(gameState==2) {
 
-
 			if (flag == 0)
 				die.play(vol);
 			flag = 1;
+
 
 			playAgainButton = new ImageButton(
 					new TextureRegionDrawable(new TextureRegion(playAgainTexture))
@@ -232,7 +231,6 @@ parameter2.color=Color.ORANGE;
 				HighscoreTracker.flush();
 				highscore = HighscoreTracker.getInteger("highscore");
 			}
-			font2.draw(batch, "Your current score:" + score, 100, 300);
 
 			batch.draw(gameOver, Gdx.graphics.getWidth() / 2 - gameOver.getWidth() / 2, Gdx.graphics.getHeight() / 2 - gameOver.getHeight() / 2);
 
@@ -251,20 +249,18 @@ parameter2.color=Color.ORANGE;
 
 			soundButton.addListener(new ClickListener() {
 				public void clicked(InputEvent event, float x, float y) {
-					if(vol!=0) {
+					if (vol != 0) {
 						vol = 0;
-						soundButton = new ImageButton(
-								new TextureRegionDrawable(new TextureRegion(soundOff))
-						);
 
-					}else{
-						vol=1.0f;
-						soundButton = new ImageButton(
-								new TextureRegionDrawable(new TextureRegion(soundOn))
-						);
+
+					} else {
+						vol = 1.0f;
 					}
+//					soundButton.setChecked(true);
 				}
+
 			});
+			soundStage.addActor(soundButton);
 
 		}
 
@@ -287,8 +283,6 @@ parameter2.color=Color.ORANGE;
 			batch.draw(birds[flatState], birdX, birdY);
 		font.draw(batch,String.valueOf(score),100,Gdx.graphics.getHeight()-soundOn.getHeight()/2-150);
 		font2.draw(batch,"Your highscore :"+highscore,100,200);
-
-	//	font2.draw(batch,"Your highscore :"+highscore,Gdx.graphics.getWidth()-750,200);
 		birdCircle.set(Gdx.graphics.getWidth()/2,birdY+birds[flatState].getHeight()/2,birds[flatState].getWidth()/2-5);
 
 
@@ -309,6 +303,7 @@ parameter2.color=Color.ORANGE;
 //		shapeRenderer.end();
 		buttonStage.act(); //Perform ui logic
 		buttonStage.draw(); //Draw the uij
+
 		soundStage.act();
 		soundStage.draw();
 		batch.end();
@@ -317,8 +312,8 @@ parameter2.color=Color.ORANGE;
 
 	@Override
 	public boolean keyDown(int keycode) {
-		if(keycode == Input.Keys.BACK){			// Optional back button handling (e.g. ask for confirmation)
-          System.out.println("bye");
+		if (Gdx.input.isKeyPressed(Input.Keys.BACK)) {
+
 		}
 		return false;
 	}
