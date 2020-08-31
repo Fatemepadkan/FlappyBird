@@ -60,6 +60,7 @@ public class MyFlappyBird extends ApplicationAdapter implements InputProcessor {
     float tubeVelocity = 8;
     int flag = 0; //when the user games over it turns to 1
     int numberOfTubes = 4;
+    float roofY;
     float[] tubeX = new float[numberOfTubes];
     float[] tubeOffset = new float[numberOfTubes];
     int highscore;
@@ -99,7 +100,6 @@ public class MyFlappyBird extends ApplicationAdapter implements InputProcessor {
             );
             soundButton.getStyle().imageChecked = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("soundoff.png"))));
             soundButton.getStyle().imageUp = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("soundon.png"))));
-            soundButton.setPosition(Gdx.graphics.getWidth() - soundOn.getWidth() / 2 - 150, Gdx.graphics.getHeight() - soundOn.getHeight() / 2 - 150);
             soundEnabled = 1;
         } else {
             soundButton = new ImageButton(
@@ -107,9 +107,9 @@ public class MyFlappyBird extends ApplicationAdapter implements InputProcessor {
             );
             soundButton.getStyle().imageChecked = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("soundon.png"))));
             soundButton.getStyle().imageUp = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("soundoff.png"))));
-            soundButton.setPosition(Gdx.graphics.getWidth() - soundOn.getWidth() / 2 - 150, Gdx.graphics.getHeight() - soundOn.getHeight() / 2 - 150);
             soundEnabled = 0;
         }
+        soundButton.setPosition(Gdx.graphics.getWidth() - soundOn.getWidth() / 2 - 150, Gdx.graphics.getHeight() - soundOn.getHeight() / 2 - 150);
         soundButton.addListener(new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
                 if (soundEnabled == 1) {
@@ -123,12 +123,14 @@ public class MyFlappyBird extends ApplicationAdapter implements InputProcessor {
         });
     }
 
+
     @Override
     public void create() {
         setAssets();
         buttonStage = new Stage();
         soundStage = new Stage();
         birdX = Gdx.graphics.getWidth() / 2 - birds[0].getWidth() / 2;
+        roofY = Gdx.graphics.getHeight() - birds[0].getHeight();
         Gdx.input.setInputProcessor(this);
         Gdx.input.setCatchBackKey(true);
         batch = new SpriteBatch();
@@ -213,15 +215,13 @@ public class MyFlappyBird extends ApplicationAdapter implements InputProcessor {
                 velocity = velocity + gravity;
                 birdY = birdY - velocity / 2;
 
-                if (birdY >= Gdx.graphics.getHeight() - 200) {
-                    birdY = birdY - 10;
+                //Stops bird from escaping from the top of the screen
+                if (birdY >= roofY) {
+                    birdY = roofY;
+                    velocity = 0;
                 }
-            } else {
-
-                gameState = 2;
-            }
+            } else gameState = 2;
         } else if (gameState == 0) {
-
 
             removeActor(buttonStage);
 
