@@ -331,7 +331,7 @@ public class MyFlappyBird extends ApplicationAdapter {
             batch.draw(birds[flatState], birdX, birdY, birdWidth, birdHeight);
         font.draw(batch, String.valueOf(score), 100, Gdx.graphics.getHeight() - soundOn.getHeight() / 2 - 150);
         font2.draw(batch, "Your highscore :" + highscore, 100, 200);
-        birdCircle.set(Gdx.graphics.getWidth() / 2, birdY + birds[flatState].getHeight() / 2, birds[flatState].getWidth() / 2 - 12);
+        birdCircle.set(Gdx.graphics.getWidth() / 2, birdY + birds[flatState].getHeight() / 2, (birds[flatState].getWidth() / 2 - 12) * scale);
 //		shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 //			shapeRenderer.setColor(Color.RED);
 //		shapeRenderer.circle(birdCircle.x,birdCircle.y,birdCircle.radius);
