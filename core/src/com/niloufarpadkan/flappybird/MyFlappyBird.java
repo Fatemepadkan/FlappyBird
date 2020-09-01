@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
@@ -58,7 +59,6 @@ public class MyFlappyBird extends ApplicationAdapter {
     float[] tubeX = new float[numberOfTubes];
     float[] tubeOffset = new float[numberOfTubes];
     int highscore;
-
     public void setAssets() { //setting assets randomly
         soundOn = new Texture("soundon.png");
         soundOff = new Texture("soundoff.png");
@@ -87,9 +87,7 @@ public class MyFlappyBird extends ApplicationAdapter {
             bottomTube = new Texture("redpipedown.png");
         }
     }
-
     public void initSoundButton() {
-
         if (vol > 0) {
             soundButton = new ImageButton(
                     new TextureRegionDrawable(new TextureRegion(soundOn))
@@ -106,7 +104,6 @@ public class MyFlappyBird extends ApplicationAdapter {
             soundEnabled = 0;
         }
         soundButton.setPosition(Gdx.graphics.getWidth() - soundOn.getWidth() / 2 - 150, Gdx.graphics.getHeight() - soundOn.getHeight() / 2 - 150);
-
         soundButton.addListener(new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
                 if (soundEnabled == 1) {
@@ -119,7 +116,6 @@ public class MyFlappyBird extends ApplicationAdapter {
             }
         });
     }
-
     public void initExitButton() {
         yesButton = new ImageButton(
                 new TextureRegionDrawable(new TextureRegion(yes))
@@ -127,11 +123,9 @@ public class MyFlappyBird extends ApplicationAdapter {
         noButton = new ImageButton(
                 new TextureRegionDrawable(new TextureRegion(no))
         );
-
         Gdx.input.setInputProcessor(exitStage);
-        yesButton.setPosition(Gdx.graphics.getWidth() / 2 - yes.getWidth() / 2, Gdx.graphics.getHeight() / 2 - yes.getHeight() / 2 - 350);
-        noButton.setPosition(Gdx.graphics.getWidth() / 2 + no.getWidth() / 2, Gdx.graphics.getHeight() / 2 - no.getHeight() / 2 - 350);
-
+        yesButton.setPosition(4 * (Gdx.graphics.getWidth() / 5) - yes.getWidth() / 2, Gdx.graphics.getHeight() / 2 - yes.getHeight() / 2 - 350);
+        noButton.setPosition(Gdx.graphics.getWidth() / 5 - no.getWidth() / 2, Gdx.graphics.getHeight() / 2 - yes.getHeight() / 2 - 350);
         yesButton.addListener(new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
                 Gdx.app.exit();
@@ -142,7 +136,6 @@ public class MyFlappyBird extends ApplicationAdapter {
                 exitConfirm = 0;
             }
         });
-
     }
     @Override
     public void create() {
@@ -176,10 +169,8 @@ public class MyFlappyBird extends ApplicationAdapter {
         initExitButton();
         startGame();
     }
-
     public void startGame() {
         birdY = Gdx.graphics.getHeight() / 2 - birds[0].getHeight() / 2;
-
         for (int i = 0; i < numberOfTubes; i++) {
             tubeOffset[i] = (rand.nextFloat() - 0.5f) * (Gdx.graphics.getHeight() - gap - 200);
             tubeX[i] = Gdx.graphics.getWidth() / 2 - topTube.getWidth() / 2 + Gdx.graphics.getWidth() + i * distanceBetweenTubes;
@@ -187,18 +178,15 @@ public class MyFlappyBird extends ApplicationAdapter {
             bottomTubeRectangle[i] = new Rectangle();
         }
     }
-
     public void removeActor(Stage stage) {
         for (Actor actor : stage.getActors()) {
             actor.remove();
         }
     }
-
     @Override
     public void render() {
         batch.begin();
         batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
         if (gameState == 1 && exitConfirm != 1) {
             removeActor(buttonStage);
             removeActor(soundStage);
@@ -206,7 +194,6 @@ public class MyFlappyBird extends ApplicationAdapter {
             if (tubeX[scoringTube] < Gdx.graphics.getWidth() / 2) {
                 score++;
                 point.play(vol);
-
                 if (scoringTube < numberOfTubes - 1) {
                     scoringTube++;
                 } else {
@@ -226,10 +213,8 @@ public class MyFlappyBird extends ApplicationAdapter {
                 }
                 batch.draw(topTube, tubeX[i], Gdx.graphics.getHeight() / 2 + gap / 2 + tubeOffset[i] / 2);
                 batch.draw(bottomTube, tubeX[i], Gdx.graphics.getHeight() / 2 - gap / 2 - bottomTube.getHeight() + tubeOffset[i] / 2);
-
                 topTubeRectangle[i] = new Rectangle(tubeX[i], Gdx.graphics.getHeight() / 2 + gap - 243 + tubeOffset[i] / 2, topTube.getWidth(), topTube.getHeight());
                 bottomTubeRectangle[i] = new Rectangle(tubeX[i], Gdx.graphics.getHeight() / 2 - gap + 243 - bottomTube.getHeight() + tubeOffset[i] / 2, bottomTube.getWidth(), bottomTube.getHeight());
-
             }
             if (birdY > 0) {
                 velocity = velocity + gravity;
@@ -248,7 +233,6 @@ public class MyFlappyBird extends ApplicationAdapter {
             if (Gdx.input.justTouched()) {
                 gameState = 1;
             }
-
         } else if (gameState == 2 && exitConfirm != 1) {
             //retain tubes
             removeActor(exitStage);
@@ -259,16 +243,12 @@ public class MyFlappyBird extends ApplicationAdapter {
             if (flag == 0)
                 die.play(vol);
             flag = 1;
-
             if (score > highscore) {
                 highscoreTracker.putInteger("highscore", score);
                 highscoreTracker.flush();
                 highscore = highscoreTracker.getInteger("highscore");
             }
-
-            if (exitConfirm != 1) {
                 batch.draw(gameOver, Gdx.graphics.getWidth() / 2 - gameOver.getWidth() / 2, Gdx.graphics.getHeight() / 2 - gameOver.getHeight() / 2);
-
                 InputMultiplexer multiplexer = new InputMultiplexer();
                 multiplexer.addProcessor(soundStage); // set stage as first input processor
                 multiplexer.addProcessor(buttonStage); // set stage as first input processor
@@ -290,25 +270,18 @@ public class MyFlappyBird extends ApplicationAdapter {
                         setAssets();
                     }
                 });
-
-
-            }
             soundStage.addActor(soundButton);
             soundStage.act();
             soundStage.draw();
-
         }
         if (exitConfirm == 1) {
             removeActor(buttonStage);
             batch.draw(exit, Gdx.graphics.getWidth() / 2 - exit.getWidth() / 2, Gdx.graphics.getHeight() / 2 - exit.getHeight() / 2);
-            //adding yes no button
             exitStage.addActor(yesButton);
             exitStage.addActor(noButton);
             Gdx.input.setInputProcessor(exitStage);
-
             exitStage.act();
             exitStage.draw();
-
         }
 
         if (flatState == 0) {
@@ -326,39 +299,29 @@ public class MyFlappyBird extends ApplicationAdapter {
                 flatState = 0;
             }
         }
-
         if (gameState != 0)
             batch.draw(birds[flatState], birdX, birdY);
         font.draw(batch, String.valueOf(score), 100, Gdx.graphics.getHeight() - soundOn.getHeight() / 2 - 150);
         font2.draw(batch, "Your highscore :" + highscore, 100, 200);
         birdCircle.set(Gdx.graphics.getWidth() / 2, birdY + birds[flatState].getHeight() / 2, birds[flatState].getWidth() / 2 - 5);
-
-
-//
 //		shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 //			shapeRenderer.setColor(Color.RED);
 //		shapeRenderer.circle(birdCircle.x,birdCircle.y,birdCircle.radius);
         for (int i = 0; i < numberOfTubes; i++) {
 //shapeRenderer.rect(tubeX[i],Gdx.graphics.getHeight() / 2 + gap-243  + tubeOffset[i] / 2,topTube.getWidth(),topTube.getHeight());
 //shapeRenderer.rect(tubeX[i],Gdx.graphics.getHeight() / 2 - gap +243 - bottomTube.getHeight() + tubeOffset[i]/2 ,bottomTube.getWidth(),bottomTube.getHeight());
-
             if (Intersector.overlaps(birdCircle, bottomTubeRectangle[i]) || Intersector.overlaps(birdCircle, topTubeRectangle[i])) {
                 gameState = 2;
-
             }
         }
 //		shapeRenderer.end();
         buttonStage.act(); //Perform ui logic
         buttonStage.draw(); //Draw the uij
 
-        if (Gdx.input.isKeyPressed(Input.Keys.BACK)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.BACK)) {
             exitConfirm = 1;
-
-            // Gdx.app.exit();
         }
-        System.out.println(exitConfirm + "exit");
         batch.end();
-
     }
 
 
