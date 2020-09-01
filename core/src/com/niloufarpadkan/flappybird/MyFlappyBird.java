@@ -27,9 +27,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import java.util.Random;
 
 public class MyFlappyBird extends ApplicationAdapter {
-    private Stage buttonStage, soundStage, exitStage;
+    private Stage buttonStage, soundStage, exitStage, startStage;
     public static float vol = 1.0f;
-    private ImageButton playAgainButton, soundButton, yesButton, noButton;
+    private ImageButton playAgainButton, soundButton, yesButton, noButton, startButton;
     Preferences highscoreTracker;
     Sound point, die;
     Texture start, background, gameOver, topTube, bottomTube, playAgainTexture, soundOn, soundOff, exit, yes, no;
@@ -58,6 +58,7 @@ public class MyFlappyBird extends ApplicationAdapter {
     float[] tubeX = new float[numberOfTubes];
     float[] tubeOffset = new float[numberOfTubes];
     int highscore;
+    InputMultiplexer multiplexer;
     public void setAssets() { //setting assets randomly
         soundOn = new Texture("soundon.png");
         soundOff = new Texture("soundoff.png");
@@ -86,7 +87,6 @@ public class MyFlappyBird extends ApplicationAdapter {
             bottomTube = new Texture("redpipedown.png");
         }
     }
-
     public void initButtons() {
         if (vol > 0) {
             soundButton = new ImageButton(
@@ -118,9 +118,7 @@ public class MyFlappyBird extends ApplicationAdapter {
         playAgainButton = new ImageButton(
                 new TextureRegionDrawable(new TextureRegion(playAgainTexture))
         );
-
         playAgainButton.setPosition(Gdx.graphics.getWidth() / 2 - playAgainTexture.getWidth() / 2, Gdx.graphics.getHeight() / 2 - playAgainTexture.getHeight() / 2 - 150);
-
         playAgainButton.addListener(new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
                 gameState = 1;
@@ -138,7 +136,6 @@ public class MyFlappyBird extends ApplicationAdapter {
         noButton = new ImageButton(
                 new TextureRegionDrawable(new TextureRegion(no))
         );
-        Gdx.input.setInputProcessor(exitStage);
         yesButton.setPosition(4 * (Gdx.graphics.getWidth() / 5) - yes.getWidth() / 2, Gdx.graphics.getHeight() / 2 - yes.getHeight() / 2 - 350);
         noButton.setPosition(Gdx.graphics.getWidth() / 5 - no.getWidth() / 2, Gdx.graphics.getHeight() / 2 - yes.getHeight() / 2 - 350);
         yesButton.addListener(new ClickListener() {
@@ -151,6 +148,16 @@ public class MyFlappyBird extends ApplicationAdapter {
                 exitConfirm = 0;
             }
         });
+
+        startButton = new ImageButton(
+                new TextureRegionDrawable(new TextureRegion(start))
+        );
+        startButton.setPosition(Gdx.graphics.getWidth() / 2 - start.getWidth() / 2, Gdx.graphics.getHeight() / 2 - start.getHeight() / 2);
+        startButton.addListener(new ClickListener() {
+            public void clicked(InputEvent event, float x, float y) {
+                gameState = 1;
+            }
+        });
     }
 
     @Override
@@ -159,6 +166,8 @@ public class MyFlappyBird extends ApplicationAdapter {
         buttonStage = new Stage();
         soundStage = new Stage();
         exitStage = new Stage();
+        startStage = new Stage();
+
         birdX = Gdx.graphics.getWidth() / 2 - birds[0].getWidth() / 2;
         roofY = Gdx.graphics.getHeight() - birds[0].getHeight();
         Gdx.input.setCatchBackKey(true);
@@ -181,8 +190,14 @@ public class MyFlappyBird extends ApplicationAdapter {
         distanceBetweenTubes = Gdx.graphics.getWidth() / 2;
         topTubeRectangle = new Rectangle[numberOfTubes];
         bottomTubeRectangle = new Rectangle[numberOfTubes];
+        multiplexer = new InputMultiplexer();
+        multiplexer.addProcessor(soundStage);
+        multiplexer.addProcessor(startStage);
+        multiplexer.addProcessor(buttonStage);
+
         initButtons();
         startGame();
+
     }
     public void startGame() {
         birdY = Gdx.graphics.getHeight() / 2 - birds[0].getHeight() / 2;
@@ -201,11 +216,13 @@ public class MyFlappyBird extends ApplicationAdapter {
     @Override
     public void render() {
         batch.begin();
+        Gdx.input.setInputProcessor(multiplexer);
         batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         if (gameState == 1 && exitConfirm != 1) {
             removeActor(buttonStage);
             removeActor(soundStage);
             removeActor(exitStage);
+            removeActor(startStage);
             if (tubeX[scoringTube] < Gdx.graphics.getWidth() / 2) {
                 score++;
                 point.play(vol);
@@ -244,13 +261,12 @@ public class MyFlappyBird extends ApplicationAdapter {
         } else if (gameState == 0 && exitConfirm != 1) {
             removeActor(buttonStage);
             removeActor(exitStage);
-            batch.draw(start, Gdx.graphics.getWidth() / 2 - start.getWidth() / 2, Gdx.graphics.getHeight() / 2 - start.getHeight() / 2);
-            if (Gdx.input.justTouched()) {
-                gameState = 1;
-            }
+            soundStage.addActor(soundButton);
+            startStage.addActor(startButton);
         } else if (gameState == 2 && exitConfirm != 1) {
             //retain tubes
             removeActor(exitStage);
+            removeActor(startStage);
             for (int i = 0; i < numberOfTubes; i++) {
                 batch.draw(topTube, tubeX[i], Gdx.graphics.getHeight() / 2 + gap / 2 + tubeOffset[i] / 2);
                 batch.draw(bottomTube, tubeX[i], Gdx.graphics.getHeight() / 2 - gap / 2 - bottomTube.getHeight() + tubeOffset[i] / 2);
@@ -264,19 +280,16 @@ public class MyFlappyBird extends ApplicationAdapter {
                 highscore = highscoreTracker.getInteger("highscore");
             }
                 batch.draw(gameOver, Gdx.graphics.getWidth() / 2 - gameOver.getWidth() / 2, Gdx.graphics.getHeight() / 2 - gameOver.getHeight() / 2);
-                InputMultiplexer multiplexer = new InputMultiplexer();
-                multiplexer.addProcessor(soundStage); // set stage as first input processor
-                multiplexer.addProcessor(buttonStage); // set stage as first input processor
-                Gdx.input.setInputProcessor(multiplexer);
+
 
             buttonStage.addActor(playAgainButton);
 
             soundStage.addActor(soundButton);
-            soundStage.act();
-            soundStage.draw();
+
         }
         if (exitConfirm == 1) {
             removeActor(buttonStage);
+            removeActor(startStage);
 
             batch.draw(exit, Gdx.graphics.getWidth() / 2 - exit.getWidth() / 2, Gdx.graphics.getHeight() / 2 - exit.getHeight() / 2);
             exitStage.addActor(yesButton);
@@ -305,7 +318,7 @@ public class MyFlappyBird extends ApplicationAdapter {
             batch.draw(birds[flatState], birdX, birdY);
         font.draw(batch, String.valueOf(score), 100, Gdx.graphics.getHeight() - soundOn.getHeight() / 2 - 150);
         font2.draw(batch, "Your highscore :" + highscore, 100, 200);
-        birdCircle.set(Gdx.graphics.getWidth() / 2, birdY + birds[flatState].getHeight() / 2, birds[flatState].getWidth() / 2 - 5);
+        birdCircle.set(Gdx.graphics.getWidth() / 2, birdY + birds[flatState].getHeight() / 2, birds[flatState].getWidth() / 2 - 12);
 //		shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 //			shapeRenderer.setColor(Color.RED);
 //		shapeRenderer.circle(birdCircle.x,birdCircle.y,birdCircle.radius);
@@ -319,7 +332,10 @@ public class MyFlappyBird extends ApplicationAdapter {
 //		shapeRenderer.end();
         buttonStage.act(); //Perform ui logic
         buttonStage.draw(); //Draw the uij
-
+        startStage.act();
+        startStage.draw();
+        soundStage.act();
+        soundStage.draw();
         if (Gdx.input.isKeyJustPressed(Input.Keys.BACK)) {
             exitConfirm = 1;
         }
