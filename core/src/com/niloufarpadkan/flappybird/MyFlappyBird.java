@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -104,7 +105,8 @@ public class MyFlappyBird extends ApplicationAdapter {
             soundButton.getStyle().imageUp = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("soundoff.png"))));
             soundEnabled = 0;
         }
-        soundButton.setPosition(Gdx.graphics.getWidth() - soundOn.getWidth() / 2 - 150, Gdx.graphics.getHeight() - soundOn.getHeight() / 2 - 150);
+        soundButton.setPosition(Gdx.graphics.getWidth() - (soundOn.getWidth() / 2 - 150) * scale, Gdx.graphics.getHeight() - (soundOn.getHeight() / 2 - 150) * scale);
+        soundButton.setSize(soundButton.getWidth() * scale, soundButton.getHeight() * scale);
         soundButton.addListener(new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
                 if (soundEnabled == 1) {
@@ -119,7 +121,8 @@ public class MyFlappyBird extends ApplicationAdapter {
         playAgainButton = new ImageButton(
                 new TextureRegionDrawable(new TextureRegion(playAgainTexture))
         );
-        playAgainButton.setPosition(Gdx.graphics.getWidth() / 2 - playAgainTexture.getWidth() / 2, Gdx.graphics.getHeight() / 2 - playAgainTexture.getHeight() / 2 - 150);
+        playAgainButton.setPosition(Gdx.graphics.getWidth() / 2 - (playAgainTexture.getWidth() / 2 * scale), Gdx.graphics.getHeight() / 2 - playAgainTexture.getHeight() / 2 - 150 * scale);
+        playAgainButton.setSize(playAgainButton.getWidth() * scale, playAgainButton.getHeight() * scale);
         playAgainButton.addListener(new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
                 gameState = 1;
@@ -137,8 +140,10 @@ public class MyFlappyBird extends ApplicationAdapter {
         noButton = new ImageButton(
                 new TextureRegionDrawable(new TextureRegion(no))
         );
-        yesButton.setPosition(4 * (Gdx.graphics.getWidth() / 5) - yes.getWidth() / 2, Gdx.graphics.getHeight() / 2 - yes.getHeight() / 2 - 350);
-        noButton.setPosition(Gdx.graphics.getWidth() / 5 - no.getWidth() / 2, Gdx.graphics.getHeight() / 2 - yes.getHeight() / 2 - 350);
+        yesButton.setPosition(4 * (Gdx.graphics.getWidth() / 5) - yes.getWidth() / 2 * scale, Gdx.graphics.getHeight() / 2 - (yes.getHeight() / 2 + 350) * scale);
+        yesButton.setSize(yesButton.getWidth() * scale, yesButton.getHeight() * scale);
+        noButton.setPosition(Gdx.graphics.getWidth() / 5 - no.getWidth() / 2 * scale, Gdx.graphics.getHeight() / 2 - (yes.getHeight() / 2 + 350) * scale);
+        noButton.setSize(noButton.getWidth() * scale, noButton.getHeight() * scale);
         yesButton.addListener(new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
                 Gdx.app.exit();
@@ -153,7 +158,8 @@ public class MyFlappyBird extends ApplicationAdapter {
         startButton = new ImageButton(
                 new TextureRegionDrawable(new TextureRegion(start))
         );
-        startButton.setPosition(Gdx.graphics.getWidth() / 2 - start.getWidth() / 2, Gdx.graphics.getHeight() / 2 - start.getHeight() / 2);
+        startButton.setPosition(Gdx.graphics.getWidth() / 2 - start.getWidth() / 2 * scale, Gdx.graphics.getHeight() / 2 - start.getHeight() / 2 * scale);
+        startButton.setSize(startButton.getWidth() * scale, startButton.getHeight() * scale);
         startButton.addListener(new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
                 gameState = 1;
@@ -185,10 +191,10 @@ public class MyFlappyBird extends ApplicationAdapter {
         batch = new SpriteBatch();
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("font.TTF"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 80;
+        parameter.size = MathUtils.ceil(80 * scale);
         font = generator.generateFont(parameter);
         FreeTypeFontGenerator.FreeTypeFontParameter parameter2 = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter2.size = 50;
+        parameter2.size = MathUtils.ceil(50 * scale);
         parameter2.color = Color.ORANGE;
         font2 = generator.generateFont(parameter2);
         generator.dispose(); // don't forget to dispose to avoid memory leaks!
@@ -292,7 +298,8 @@ public class MyFlappyBird extends ApplicationAdapter {
                 highscoreTracker.flush();
                 highscore = highscoreTracker.getInteger("highscore");
             }
-                batch.draw(gameOver, Gdx.graphics.getWidth() / 2 - gameOver.getWidth() / 2, Gdx.graphics.getHeight() / 2 - gameOver.getHeight() / 2);
+            batch.draw(gameOver, Gdx.graphics.getWidth() / 2 - gameOver.getWidth() / 2 * scale, Gdx.graphics.getHeight() / 2 - gameOver.getHeight() / 2 * scale
+                    , gameOver.getWidth() * scale, gameOver.getHeight() * scale);
 
 
             buttonStage.addActor(playAgainButton);
@@ -304,7 +311,8 @@ public class MyFlappyBird extends ApplicationAdapter {
             removeActor(buttonStage);
             removeActor(startStage);
 
-            batch.draw(exit, Gdx.graphics.getWidth() / 2 - exit.getWidth() / 2, Gdx.graphics.getHeight() / 2 - exit.getHeight() / 2);
+            batch.draw(exit, Gdx.graphics.getWidth() / 2 - exit.getWidth() / 2 * scale, Gdx.graphics.getHeight() / 2 - exit.getHeight() / 2 * scale
+                    , exit.getWidth() * scale, exit.getHeight() * scale);
             exitStage.addActor(yesButton);
             exitStage.addActor(noButton);
             Gdx.input.setInputProcessor(exitStage);
@@ -329,8 +337,8 @@ public class MyFlappyBird extends ApplicationAdapter {
         }
         if (gameState != 0)
             batch.draw(birds[flatState], birdX, birdY, birdWidth, birdHeight);
-        font.draw(batch, String.valueOf(score), 100, Gdx.graphics.getHeight() - soundOn.getHeight() / 2 - 150);
-        font2.draw(batch, "Your highscore :" + highscore, 100, 200);
+        font.draw(batch, String.valueOf(score), 100 * scale, Gdx.graphics.getHeight() - (soundOn.getHeight() + 100) * scale);
+        font2.draw(batch, "Your highscore :" + highscore, 100 * scale, 300 * scale);
         birdCircle.set(Gdx.graphics.getWidth() / 2, birdY + birds[flatState].getHeight() * scale / 2, (birds[flatState].getWidth() / 2 - 12) * scale);
 //		shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 //			shapeRenderer.setColor(Color.RED);
