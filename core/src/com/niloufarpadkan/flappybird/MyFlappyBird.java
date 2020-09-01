@@ -4,7 +4,6 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
@@ -87,7 +86,8 @@ public class MyFlappyBird extends ApplicationAdapter {
             bottomTube = new Texture("redpipedown.png");
         }
     }
-    public void initSoundButton() {
+
+    public void initButtons() {
         if (vol > 0) {
             soundButton = new ImageButton(
                     new TextureRegionDrawable(new TextureRegion(soundOn))
@@ -115,8 +115,23 @@ public class MyFlappyBird extends ApplicationAdapter {
                 }
             }
         });
-    }
-    public void initExitButton() {
+        playAgainButton = new ImageButton(
+                new TextureRegionDrawable(new TextureRegion(playAgainTexture))
+        );
+
+        playAgainButton.setPosition(Gdx.graphics.getWidth() / 2 - playAgainTexture.getWidth() / 2, Gdx.graphics.getHeight() / 2 - playAgainTexture.getHeight() / 2 - 150);
+
+        playAgainButton.addListener(new ClickListener() {
+            public void clicked(InputEvent event, float x, float y) {
+                gameState = 1;
+                startGame();
+                score = 0;
+                scoringTube = 0;
+                velocity = 0;
+                flag = 0;
+                setAssets();
+            }
+        });
         yesButton = new ImageButton(
                 new TextureRegionDrawable(new TextureRegion(yes))
         );
@@ -137,6 +152,7 @@ public class MyFlappyBird extends ApplicationAdapter {
             }
         });
     }
+
     @Override
     public void create() {
         setAssets();
@@ -165,8 +181,7 @@ public class MyFlappyBird extends ApplicationAdapter {
         distanceBetweenTubes = Gdx.graphics.getWidth() / 2;
         topTubeRectangle = new Rectangle[numberOfTubes];
         bottomTubeRectangle = new Rectangle[numberOfTubes];
-        initSoundButton();
-        initExitButton();
+        initButtons();
         startGame();
     }
     public void startGame() {
@@ -253,29 +268,16 @@ public class MyFlappyBird extends ApplicationAdapter {
                 multiplexer.addProcessor(soundStage); // set stage as first input processor
                 multiplexer.addProcessor(buttonStage); // set stage as first input processor
                 Gdx.input.setInputProcessor(multiplexer);
-                playAgainButton = new ImageButton(
-                        new TextureRegionDrawable(new TextureRegion(playAgainTexture))
-                );
-                buttonStage.addActor(playAgainButton);
-                playAgainButton.setPosition(Gdx.graphics.getWidth() / 2 - playAgainTexture.getWidth() / 2, Gdx.graphics.getHeight() / 2 - playAgainTexture.getHeight() / 2 - 150);  //hikeButton is an ImageButton
 
-                playAgainButton.addListener(new ClickListener() {
-                    public void clicked(InputEvent event, float x, float y) {
-                        gameState = 1;
-                        startGame();
-                        score = 0;
-                        scoringTube = 0;
-                        velocity = 0;
-                        flag = 0;
-                        setAssets();
-                    }
-                });
+            buttonStage.addActor(playAgainButton);
+
             soundStage.addActor(soundButton);
             soundStage.act();
             soundStage.draw();
         }
         if (exitConfirm == 1) {
             removeActor(buttonStage);
+
             batch.draw(exit, Gdx.graphics.getWidth() / 2 - exit.getWidth() / 2, Gdx.graphics.getHeight() / 2 - exit.getHeight() / 2);
             exitStage.addActor(yesButton);
             exitStage.addActor(noButton);
