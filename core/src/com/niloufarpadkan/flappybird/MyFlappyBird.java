@@ -105,7 +105,7 @@ public class MyFlappyBird extends ApplicationAdapter {
             soundButton.getStyle().imageUp = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("soundoff.png"))));
             soundEnabled = 0;
         }
-        soundButton.setPosition(Gdx.graphics.getWidth() - (soundOn.getWidth() / 2 - 150) * scale, Gdx.graphics.getHeight() - (soundOn.getHeight() / 2 - 150) * scale);
+        soundButton.setPosition(Gdx.graphics.getWidth() - (soundOn.getWidth() / 2 + 150) * scale, Gdx.graphics.getHeight() - (soundOn.getHeight() / 2 + 150) * scale);
         soundButton.setSize(soundButton.getWidth() * scale, soundButton.getHeight() * scale);
         soundButton.addListener(new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
