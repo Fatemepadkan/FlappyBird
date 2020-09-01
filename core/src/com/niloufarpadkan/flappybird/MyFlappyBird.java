@@ -212,7 +212,7 @@ public class MyFlappyBird extends ApplicationAdapter {
     public void startGame() {
         birdY = Gdx.graphics.getHeight() / 2 - birds[0].getHeight() / 2;
         for (int i = 0; i < numberOfTubes; i++) {
-            tubeOffset[i] = (rand.nextFloat() * 2 - 1) * topTubeY / 2;
+            tubeOffset[i] = (rand.nextFloat() * 2 - 1) * bottomTubeY / 2 - (94 * scale);
             ;
             tubeX[i] = Gdx.graphics.getWidth() / 2 - topTube.getWidth() / 2 + Gdx.graphics.getWidth() + i * distanceBetweenTubes;
             topTubeRectangle[i] = new Rectangle();
@@ -249,7 +249,7 @@ public class MyFlappyBird extends ApplicationAdapter {
             for (int i = 0; i < numberOfTubes; i++) {
                 if (tubeX[i] < -topTube.getWidth()) {
                     tubeX[i] += numberOfTubes * distanceBetweenTubes;
-                    tubeOffset[i] = (rand.nextFloat() * 2 - 1) * topTubeY / 2;
+                    tubeOffset[i] = (rand.nextFloat() * 2 - 1) * bottomTubeY / 2 - (94 * scale);
 
                 } else {
                     tubeX[i] -= tubeVelocity;
