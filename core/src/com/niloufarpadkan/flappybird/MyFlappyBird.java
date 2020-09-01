@@ -52,7 +52,7 @@ public class MyFlappyBird extends ApplicationAdapter {
     float gap = 450;
     float maxTubeOffset, distanceBetweenTubes;
     Random rand;
-    float tubeVelocity = 8;
+    float tubeVelocity = 6;
     int flag = 0; //when the user games over it turns to 1
     int numberOfTubes = 4;
     float[] tubeX = new float[numberOfTubes];
