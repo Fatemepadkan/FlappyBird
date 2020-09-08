@@ -24,7 +24,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
-
 import java.util.Random;
 
 public class MyFlappyBird extends ApplicationAdapter {
@@ -73,6 +72,9 @@ public class MyFlappyBird extends ApplicationAdapter {
         point = Gdx.audio.newSound(Gdx.files.internal("point.mp3"));
         die = Gdx.audio.newSound(Gdx.files.internal("die.mp3"));
         birds = new Texture[2];
+    }
+
+    public void randGameTheme() {
         rand = new Random();
         int randomAsset = rand.nextInt(2);
         if (randomAsset % 2 == 0) {
@@ -89,6 +91,7 @@ public class MyFlappyBird extends ApplicationAdapter {
             bottomTube = new Texture("redpipedown.png");
         }
     }
+
     public void initButtons() {
         if (vol > 0) {
             soundButton = new ImageButton(
@@ -131,7 +134,7 @@ public class MyFlappyBird extends ApplicationAdapter {
                 scoringTube = 0;
                 velocity = 0;
                 flag = 0;
-                setAssets();
+                randGameTheme();
             }
         });
         yesButton = new ImageButton(
@@ -170,6 +173,7 @@ public class MyFlappyBird extends ApplicationAdapter {
     @Override
     public void create() {
         setAssets();
+        randGameTheme();
         scale = Gdx.graphics.getWidth() / 1080f;
         tubeHeight = topTube.getHeight() * scale;
         tubeWidth = topTube.getWidth() * scale;
@@ -177,7 +181,6 @@ public class MyFlappyBird extends ApplicationAdapter {
         birdWidth = birds[0].getWidth() * scale;
         topTubeY = (Gdx.graphics.getHeight() + gap * scale) / 2;
         bottomTubeY = (-bottomTube.getHeight() * scale + ((Gdx.graphics.getHeight() - gap * scale) / 2));
-        System.out.println(topTubeY + " - " + bottomTubeY);
         gravity = 2.5f * scale;
         tubeVelocity = 6 * scale;
         buttonStage = new Stage();
@@ -186,7 +189,7 @@ public class MyFlappyBird extends ApplicationAdapter {
         startStage = new Stage();
 
         birdX = Gdx.graphics.getWidth() / 2 - birds[0].getWidth() * scale / 2;
-        roofY = Gdx.graphics.getHeight() - birds[0].getHeight();
+        roofY = Gdx.graphics.getHeight() - (birds[0].getHeight() * scale);
         Gdx.input.setCatchBackKey(true);
         batch = new SpriteBatch();
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("font.TTF"));
